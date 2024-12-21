@@ -1,4 +1,5 @@
 import 'package:calendar_scheduler/component/calendar.dart';
+import 'package:calendar_scheduler/component/schedule_bottom_sheet.dart';
 import 'package:calendar_scheduler/component/schedule_card.dart';
 import 'package:calendar_scheduler/component/today_banner.dart';
 import 'package:calendar_scheduler/const/color.dart';
@@ -21,6 +22,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (_) => ScheduleBottomSheet(),
+          );
+        },
+        backgroundColor: primaryColor,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -40,9 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListView(
                   children: [
                     ScheduleCard(
-                      startTime: DateTime(2024,03,19,11),
-                      endTime: DateTime(2024,03,19,12),
-                      content: 'Flutter Strudy',
+                      startTime: DateTime(2024, 03, 19, 11),
+                      endTime: DateTime(2024, 03, 19, 12),
+                      content: 'Flutter Study',
                       color: Colors.blue,
                     ),
                   ],
