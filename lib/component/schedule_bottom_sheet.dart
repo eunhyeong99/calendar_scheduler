@@ -1,16 +1,26 @@
 import 'package:calendar_scheduler/component/custom_text_field.dart';
+import 'package:calendar_scheduler/model/schedule.dart';
 import 'package:flutter/material.dart';
 
 import '../const/color.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
-  const ScheduleBottomSheet({super.key});
+  final DateTime? selectedDay;
+
+  const ScheduleBottomSheet({
+    required this.selectedDay,
+    super.key,
+  });
 
   @override
   State<ScheduleBottomSheet> createState() => _ScheduleBottomSheetState();
 }
 
 class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
+  final GlobalKey<FormState> formKey = GlobalKey();
+  int? startTime;
+  int? endTime;
+  String? content;
   String selectedColor = categoryColors.first;
 
   @override
@@ -21,47 +31,159 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
-          child: Column(
-            children: [
-              _Time(),
-              const SizedBox(height: 8.0),
-              _Content(),
-              const SizedBox(height: 8.0),
-              _Category(
-                selectedColor: selectedColor,
-                onTap: (String color){
-                  setState(() {
-                    selectedColor = color;
-                  });
-                },
-              ),
-              const SizedBox(height: 8.0),
-              _SaveButton(),
-            ],
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                _Time(
+                  onStartSaved: onStartTimeSaved,
+                  onStartValidate: onStartTimeValidate,
+                  onEndSaved: onEndTimeSaved,
+                  onEndValidate: onEndTimeValidate,
+                ),
+                const SizedBox(height: 8.0),
+                _Content(
+                  onSaved: onContentSaved,
+                  onValidate: onContentValidate,
+                ),
+                const SizedBox(height: 8.0),
+                _Category(
+                  selectedColor: selectedColor,
+                  onTap: (String color) {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8.0),
+                _SaveButton(
+                  onPressed: onSavePressed,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  void onStartTimeSaved(String? val) {
+    if (val == null) {
+      return;
+    }
+    startTime = int.parse(val);
+  }
+
+  String? onStartTimeValidate(String? val) {
+    if (val == null) {
+      return '값을 입력 해주세요!';
+    }
+    if (int.tryParse(val) == null) {
+      return '숫자를 입력 해주세요!';
+    }
+    final time = int.parse(val);
+    if (time > 24 || time < 0) {
+      return '0과24 사이의 숫자를 입력해 주세요!';
+    }
+    return null;
+  }
+
+  void onEndTimeSaved(String? val) {
+    if (val == null) {
+      return;
+    }
+    endTime = int.parse(val);
+  }
+
+  String? onEndTimeValidate(String? val) {
+    if (val == null) {
+      return '값을 입력 해주세요!';
+    }
+    if (int.tryParse(val) == null) {
+      return '숫자를 입력 해주세요!';
+    }
+    final time = int.parse(val);
+    if (time > 24 || time < 0) {
+      return '0과24 사이의 숫자를 입력해 주세요!';
+    }
+    return null;
+  }
+
+  void onContentSaved(String? val) {
+    if (val == null) {
+      return;
+    }
+    content = val;
+  }
+
+  String? onContentValidate(String? val) {
+    if (val == null) {
+      return '내용을 입력해 주세요!';
+    }
+    if (val.length < 5) {
+      return '5자 이상을 입력해 주세요!';
+    }
+    return null;
+  }
+
+  void onSavePressed() {
+    final isValid = formKey.currentState!.validate();
+    if (isValid) {
+      formKey.currentState!.save();
+
+      final schedule = Schedule(
+        id: 999,
+        startTime: startTime!,
+        endTime: endTime!,
+        content: content!,
+        color: selectedColor,
+        date: widget.selectedDay!,
+        createdAt: DateTime.now().toUtc(),
+      );
+      
+      Navigator.of(context).pop(
+        schedule,
+      );
+    }
+  }
 }
 
 class _Time extends StatelessWidget {
-  const _Time({super.key});
+  final FormFieldSetter<String> onStartSaved;
+  final FormFieldSetter<String> onEndSaved;
+  final FormFieldValidator<String> onStartValidate;
+  final FormFieldValidator<String> onEndValidate;
+
+  const _Time({
+    required this.onStartSaved,
+    required this.onEndSaved,
+    required this.onStartValidate,
+    required this.onEndValidate,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: CustomTextField(
-            label: '시작 시간',
-          ),
-        ),
-        const SizedBox(width: 16.0),
-        Expanded(
-          child: CustomTextField(
-            label: '마감 시간',
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: CustomTextField(
+                label: '시작 시간',
+                onSaved: onStartSaved,
+                validator: onStartValidate,
+              ),
+            ),
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: CustomTextField(
+                label: '마감 시간',
+                onSaved: onEndSaved,
+                validator: onEndValidate,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -69,13 +191,22 @@ class _Time extends StatelessWidget {
 }
 
 class _Content extends StatelessWidget {
-  const _Content({super.key});
+  final FormFieldSetter<String> onSaved;
+  final FormFieldValidator<String> onValidate;
+
+  const _Content({
+    required this.onSaved,
+    required this.onValidate,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomTextField(
         label: '내용',
+        onSaved: onSaved,
+        validator: onValidate,
         expand: true,
       ),
     );
@@ -102,7 +233,7 @@ class _Category extends StatelessWidget {
             (e) => Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: GestureDetector(
-                onTap: (){
+                onTap: () {
                   onTap(e);
                 },
                 child: Container(
@@ -133,7 +264,12 @@ class _Category extends StatelessWidget {
 }
 
 class _SaveButton extends StatelessWidget {
-  const _SaveButton({super.key});
+  final VoidCallback onPressed;
+
+  const _SaveButton({
+    required this.onPressed,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +277,7 @@ class _SaveButton extends StatelessWidget {
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               foregroundColor: Colors.white,
