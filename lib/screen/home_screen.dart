@@ -20,35 +20,35 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime.now().day,
   );
 
-  Map<DateTime, List<Schedule>> schedules = {
-    DateTime.utc(2024, 3, 8): [
-      Schedule(
-        id: 1,
-        startTime: 11,
-        endTime: 12,
-        content: '플러터 공부하기',
-        date: DateTime.utc(2024, 3, 8),
-        color: categoryColors[0],
-        createdAt: DateTime.now().toUtc(),
-      ),
-      Schedule(
-        id: 2,
-        startTime: 14,
-        endTime: 16,
-        content: 'NestJS Study',
-        date: DateTime.utc(2024, 3, 8),
-        color: categoryColors[3],
-        createdAt: DateTime.now().toUtc(),
-      ),
-    ],
-  };
+  // Map<DateTime, List<ScheduleTable>> schedules = {
+  //   DateTime.utc(2024, 3, 8): [
+  //     ScheduleTable(
+  //       id: 1,
+  //       startTime: 11,
+  //       endTime: 12,
+  //       content: '플러터 공부하기',
+  //       date: DateTime.utc(2024, 3, 8),
+  //       color: categoryColors[0],
+  //       createdAt: DateTime.now().toUtc(),
+  //     ),
+  //     ScheduleTable(
+  //       id: 2,
+  //       startTime: 14,
+  //       endTime: 16,
+  //       content: 'NestJS Study',
+  //       date: DateTime.utc(2024, 3, 8),
+  //       color: categoryColors[3],
+  //       createdAt: DateTime.now().toUtc(),
+  //     ),
+  //   ],
+  // };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final schedule = await showModalBottomSheet<Schedule>(
+          final schedule = await showModalBottomSheet<ScheduleTable>(
             context: context,
             builder: (_) => ScheduleBottomSheet(
               selectedDay: selectedDay,
@@ -58,23 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
             return;
           }
 
-          final dateExists = schedules.containsKey(schedule.date);
+          // final dateExists = schedules.containsKey(schedule.date);
+          //
+          // final List<ScheduleTable> existingSchedules =
+          //     dateExists ? schedules[schedule.date]! : [];
 
-          final List<Schedule> existingSchedules =
-              dateExists ? schedules[schedule.date]! : [];
+          // existingSchedules.add(schedule);
 
-          existingSchedules.add(schedule);
-
-          setState(() {
-            schedules = {
-              ...schedules,
-              schedule.date: [
-                if (schedules.containsKey(schedule.date))
-                  ...schedules[schedule.date]!,
-                schedule,
-              ]
-            };
-          });
+          // setState(() {
+          //   schedules = {
+          //     ...schedules,
+          //     schedule.date: [
+          //       if (schedules.containsKey(schedule.date))
+          //         ...schedules[schedule.date]!,
+          //       schedule,
+          //     ]
+          //   };
+          // });
 
         },
         backgroundColor: primaryColor,
@@ -100,20 +100,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
                 child: ListView.separated(
-                  itemCount: schedules.containsKey(selectedDay)
-                      ? schedules[selectedDay]!.length
-                      : 0,
+                  itemCount: 0,
                   itemBuilder: (BuildContext context, int index) {
-                    final selectedSchedules = schedules[selectedDay]!;
-                    final scheduleModel = selectedSchedules[index];
+                    // final selectedSchedules = schedules[selectedDay]!;
+                    // final scheduleModel = selectedSchedules[index];
 
                     return ScheduleCard(
-                      startTime: scheduleModel.startTime,
-                      endTime: scheduleModel.endTime,
-                      content: scheduleModel.content,
+                      startTime: 12,
+                      endTime: 14,
+                      content: 'scheduleModel.content',
                       color: Color(
                         int.parse(
-                          'FF${scheduleModel.color}',
+                          'FF000000',
                           radix: 16,
                         ),
                       ),
