@@ -17,23 +17,28 @@ part 'drift.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  Future<List<ScheduleTableData>> getSchedules() => select(scheduleTable).get();
+
+  Future<int> createSchedule(ScheduleTableCompanion data)=> into(scheduleTable).insert(data);
+
   @override
   int get schemaVersion => 1;
 }
 
 LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+  return LazyDatabase(
+    () async {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dbFolder.path, 'db.sqlite'));
 
-    if (Platform.isAndroid) {
-      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    }
+      if (Platform.isAndroid) {
+        await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+      }
 
-    final cachebase = await getTemporaryDirectory();
-    sqlite3.tempDirectory = cachebase.path;
-    
-    return NativeDatabase.createInBackground(file);
-  },
+      final cachebase = await getTemporaryDirectory();
+      sqlite3.tempDirectory = cachebase.path;
+
+      return NativeDatabase.createInBackground(file);
+    },
   );
 }
